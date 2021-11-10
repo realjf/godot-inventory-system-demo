@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://images/ground.png" type="Texture" id=1]
+[ext_resource path="res://Player.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Inventory.tscn" type="PackedScene" id=3]
+[ext_resource path="res://UserInterface.gd" type="Script" id=4]
+[ext_resource path="res://ItemDrop.tscn" type="PackedScene" id=5]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 626.224, 20.3086 )
+
+[node name="World" type="Node2D"]
+
+[node name="Ground" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 7
+
+[node name="TextureRect" type="TextureRect" parent="Ground"]
+margin_right = 1022.0
+margin_bottom = 595.0
+texture = ExtResource( 1 )
+expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+position = Vector2( 518.943, 476.107 )
+shape = SubResource( 1 )
+
+[node name="Player" parent="." instance=ExtResource( 2 )]
+position = Vector2( 66.6555, 435.564 )
+
+[node name="UserInterface" type="CanvasLayer" parent="."]
+script = ExtResource( 4 )
+
+[node name="Inventory" parent="UserInterface" instance=ExtResource( 3 )]
+visible = false
+
+[node name="ItemDrop" parent="." instance=ExtResource( 5 )]
+position = Vector2( 181.539, 316.698 )
