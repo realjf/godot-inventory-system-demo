@@ -1,13 +1,103 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Item.gd" type="Script" id=1]
 [ext_resource path="res://item_icons/Iron Sword.png" type="Texture" id=2]
 [ext_resource path="res://Fonts/m5x7.ttf" type="DynamicFontData" id=3]
 
-[sub_resource type="DynamicFont" id=1]
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform int SAMPLES = 6;
+uniform float WIDTH = 0.25;
+uniform vec4 OUTLINE_COLOR = vec4(1.,1.,1.,1.);
+
+uniform vec2 TEXTURE_SCALE = vec2(1);
+
+void fragment(){
+    vec2 uv_offset = (1.-TEXTURE_SCALE)*.5;
+    vec2 uv = UV/TEXTURE_SCALE-uv_offset;
+	
+    
+    vec4 cc = texture(TEXTURE,uv);
+    if(UV.x<uv_offset.x || UV.x>1.-uv_offset.x){
+        cc.a = 0.;
+    }
+    if(UV.y<uv_offset.y || UV.y>1.-uv_offset.y){
+        cc.a = 0.;
+    }
+    //OUTLINE
+//    float outlineAlpha = 0.0;
+//    float angle = 0.0;
+//    float unit_angle = 1.0/float(SAMPLES) * 3.1415*2.0;
+//
+//    for( int i=0; i<SAMPLES; i++ ){
+//        angle += unit_angle;
+//        vec2 testPoint = vec2( (WIDTH*TEXTURE_PIXEL_SIZE.x)*cos(angle), (WIDTH*TEXTURE_PIXEL_SIZE.y)*sin(angle) );
+//        testPoint = clamp( testPoint+uv, vec2(0.), vec2(1.));
+//        float sampledAlpha = texture( TEXTURE,  testPoint ).a;
+//
+//        outlineAlpha = max( outlineAlpha, sampledAlpha );
+//    }
+	// 
+	float border_fade_outer = 0.1;
+    float border_fade_inner = 0.01;
+	float a = texture(TEXTURE, uv).a;
+    bool i = bool(step(0.5, a) == 1.0);
+	float r = min(48.0, 48.0);
+    
+    const int md = 20;
+    const int h_md = md / 2;
+    
+    float d = float(md);
+    
+    for (int x = -h_md; x != h_md; ++x)
+    {
+        for (int y = -h_md; y != h_md; ++y)
+        {
+            vec2 o = vec2(float(x), float(y));
+            vec2 s = (FRAGCOORD.xy + o) / r;
+    		s.x /= 8.0;
+    		s.y = 1.0 - s.y;
+            
+            float o_a = texture(TEXTURE, s).a;
+            bool o_i = bool(step(0.5, o_a) == 1.0);
+            
+            if (!i && o_i || i && !o_i)
+                d = min(d, length(o));
+        }
+    }
+    
+    d = clamp(d, 0.0, float(md)) / float(md);
+    
+    if (i)
+        d = -d;
+    
+    d = d * 0.5 + 0.5;
+    d = 1.0 - d;
+
+	float outer = smoothstep(0.5 - (WIDTH + border_fade_outer), 0.5, d);
+    
+    vec3 temp = vec3(0.0, 0.0, 0.0);
+    vec4 border = mix(vec4(temp, 0.0), OUTLINE_COLOR, outer);
+    
+    float inner = smoothstep(0.5, 0.5 + border_fade_inner, d);
+	COLOR = mix( border, vec4(cc.rgb, 1.0), inner);
+	
+    //COLOR = mix( vec4(0.0), OUTLINE_COLOR, outlineAlpha );
+    COLOR = mix( COLOR, cc, cc.a );
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/SAMPLES = 6
+shader_param/WIDTH = 0.25
+shader_param/OUTLINE_COLOR = Plane( 1, 1, 1, 1 )
+shader_param/TEXTURE_SCALE = Vector2( 1, 1 )
+
+[sub_resource type="DynamicFont" id=3]
 font_data = ExtResource( 3 )
 
-[sub_resource type="RectangleShape2D" id=2]
+[sub_resource type="RectangleShape2D" id=4]
 extents = Vector2( 23.3777, 23.6843 )
 
 [node name="Item" type="Node2D"]
@@ -15,6 +105,7 @@ z_index = 1
 script = ExtResource( 1 )
 
 [node name="TextureRect" type="TextureRect" parent="."]
+material = SubResource( 2 )
 margin_right = 48.0
 margin_bottom = 48.0
 mouse_filter = 2
@@ -29,7 +120,7 @@ margin_left = 34.0
 margin_top = 34.0
 margin_right = 46.0
 margin_bottom = 47.0
-custom_fonts/font = SubResource( 1 )
+custom_fonts/font = SubResource( 3 )
 text = "99"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -41,4 +132,4 @@ collision_mask = 16
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 position = Vector2( 24, 24 )
-shape = SubResource( 2 )
+shape = SubResource( 4 )

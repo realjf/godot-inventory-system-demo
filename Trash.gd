@@ -14,7 +14,7 @@ func _process(delta):
 			find_parent("UserInterface").holding_item.queue_free()
 			find_parent("UserInterface").holding_item = null
 	else:
-		yield(get_tree().create_timer(1.0), "timeout")
+#		yield(get_tree().create_timer(1.0), "timeout")
 		hide()
 
 
