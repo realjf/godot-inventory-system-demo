@@ -22,11 +22,15 @@ func _physics_process(delta):
 		
 		var distance = global_position.distance_to(player.global_position)
 		if distance < 4:
-			PlayerInventory.add_item(item_name, 1)
-			queue_free()
+			var remainNum = PlayerInventory.add_item(item_name, 1)
+			if remainNum > 0:
+				being_picked_up = false
+			else:
+				queue_free()
 			
 	velocity = move_and_slide(velocity, Vector2.UP)
 
 func pick_up_item(body):
 	player = body
 	being_picked_up = true
+	

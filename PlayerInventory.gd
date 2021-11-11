@@ -18,7 +18,13 @@ var inventory = {
 
 var hotbar = {
 	0: ["Iron Sword", 1],  #--> slot_index: [item_name, item_quantity]
-	3: ["Slime Potion", 45],
+	1: ["Iron Sword", 1],
+	2: ["Iron Sword", 1],
+	3: ["Slime Potion", 98],
+	4: ["Iron Sword", 1],
+	5: ["Iron Sword", 1],
+	6: ["Iron Sword", 1],
+	7: ["Iron Sword", 1],
 }
 
 var equips = {
@@ -27,31 +33,58 @@ var equips = {
 	2: ["Brown Boots", 1],	
 }
 
-# TODO: First try to add to hotbar
-func add_item(item_name, item_quantity):
-	for item in inventory:
-		if inventory[item][0] == item_name:
+# First try to add to hotbar
+func add_item(item_name, item_quantity) -> int:
+	for item in hotbar:
+		if hotbar[item][0] == item_name:
 			var stack_size = int(JsonData.item_data[item_name]["StackSize"])
-			var able_to_add = stack_size - inventory[item][1]
+			var able_to_add = stack_size - hotbar[item][1]
 			if able_to_add >= item_quantity:
-				inventory[item][1] += item_quantity
-				update_slot_visual(item, inventory[item][0], inventory[item][1])
-				return
+				hotbar[item][1] += item_quantity
+				update_slot_visual(item, hotbar[item][0], hotbar[item][1], true)
+				return 0
 			else:
-				inventory[item][1] += able_to_add
-				update_slot_visual(item, inventory[item][0], inventory[item][1])
+				hotbar[item][1] += able_to_add
+				update_slot_visual(item, hotbar[item][0], hotbar[item][1], true)
 				item_quantity = item_quantity - able_to_add
-			
 	
-	for i in range(NUM_INVENTORY_SLOTS):
-		if inventory.has(i) == false:
-			inventory[i] = [item_name, item_quantity]
-			update_slot_visual(i, inventory[i][0], inventory[i][1])
-			return
+	for i in range(NUM_HOTBAR_SLOTS):
+		if hotbar.has(i) == false:
+			hotbar[i] = [item_name, item_quantity]
+			update_slot_visual(i, hotbar[i][0], hotbar[i][1], true)
+			return 0
+	
+	# if there is any remaining	
+	return item_quantity
+	
+	
+#	for item in inventory:
+#		if inventory[item][0] == item_name:
+#			var stack_size = int(JsonData.item_data[item_name]["StackSize"])
+#			var able_to_add = stack_size - inventory[item][1]
+#			if able_to_add >= item_quantity:
+#				inventory[item][1] += item_quantity
+#				update_slot_visual(item, inventory[item][0], inventory[item][1])
+#				return
+#			else:
+#				inventory[item][1] += able_to_add
+#				update_slot_visual(item, inventory[item][0], inventory[item][1])
+#				item_quantity = item_quantity - able_to_add
+#
+#
+#	for i in range(NUM_INVENTORY_SLOTS):
+#		if inventory.has(i) == false:
+#			inventory[i] = [item_name, item_quantity]
+#			update_slot_visual(i, inventory[i][0], inventory[i][1])
+#			return
 
 
-func update_slot_visual(slot_index, item_name, new_quantity):
-	var slot = get_tree().root.get_node("/root/World/UserInterface/Inventory/GridContainer/Slot" + str(slot_index + 1))
+func update_slot_visual(slot_index, item_name, new_quantity, is_hotbar: bool = false):
+	var slot: Node
+	if is_hotbar:
+		slot = get_tree().root.get_node("/root/World/UserInterface/Hotbar/HotbarSlots/HotbarSlot" + str(slot_index + 1))
+	else:
+		slot = get_tree().root.get_node("/root/World/UserInterface/Inventory/GridContainer/Slot" + str(slot_index + 1))
 	if slot.item != null:
 		slot.item.set_item(item_name, new_quantity)
 	else:

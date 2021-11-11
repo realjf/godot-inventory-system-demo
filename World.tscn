@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://images/ground.png" type="Texture" id=1]
 [ext_resource path="res://Player.tscn" type="PackedScene" id=2]
@@ -6,6 +6,7 @@
 [ext_resource path="res://UserInterface.gd" type="Script" id=4]
 [ext_resource path="res://ItemDrop.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Hotbar.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Trash.tscn" type="PackedScene" id=7]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 626.224, 20.3086 )
@@ -39,6 +40,11 @@ script = ExtResource( 4 )
 visible = false
 
 [node name="Hotbar" parent="UserInterface" instance=ExtResource( 6 )]
+position = Vector2( 0, -19 )
+
+[node name="Trash" parent="UserInterface" instance=ExtResource( 7 )]
+visible = false
+position = Vector2( 841.436, 546.131 )
 
 [node name="ItemDrop" parent="." instance=ExtResource( 5 )]
 position = Vector2( 181.539, 316.698 )
