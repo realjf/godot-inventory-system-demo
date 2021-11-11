@@ -11,7 +11,6 @@ func _process(delta):
 	if find_parent("UserInterface").holding_item != null:
 		show()
 		if inTrashArea and Input.is_mouse_button_pressed(BUTTON_LEFT):
-			print(1)
 			find_parent("UserInterface").holding_item.queue_free()
 			find_parent("UserInterface").holding_item = null
 	else:
